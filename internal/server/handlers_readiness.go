@@ -1,4 +1,4 @@
-package main
+package server
 
 import "net/http"
 
@@ -10,5 +10,5 @@ func handleReadiness(w http.ResponseWriter, _ *http.Request) {
 }
 
 func handleError(w http.ResponseWriter, _ *http.Request) {
-	respondWithError(w, http.StatusOK, "Internal Server Error")
+	respondWithError(w, http.StatusInternalServerError, "Internal Server Error")
 }

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-go build -o ./bin/blagg ./main.go && ./bin/blagg
+go build -o ./bin/blogator ./cmd/blogator/main.go && ./bin/blogator
