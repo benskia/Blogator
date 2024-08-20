@@ -1,4 +1,4 @@
-package server
+package api
 
 import (
 	"encoding/json"
@@ -16,8 +16,8 @@ func (cfg *apiConfig) handleFeedsCreate(w http.ResponseWriter, r *http.Request, 
 		URL  string `json:"url"`
 	}
 	type response struct {
-		database.Feed       `json:"feed"`
-		database.FeedFollow `json:"feed_follow"`
+		Feed       `json:"feed"`
+		FeedFollow `json:"feed_follow"`
 	}
 
 	decoder := json.NewDecoder(r.Body)
@@ -57,8 +57,8 @@ func (cfg *apiConfig) handleFeedsCreate(w http.ResponseWriter, r *http.Request, 
 	}
 
 	respondWithJSON(w, http.StatusOK, response{
-		Feed:       feed,
-		FeedFollow: feedFollow,
+		Feed:       databaseFeedToFeed(feed),
+		FeedFollow: databaseFeedFollowToFeedFollow(feedFollow),
 	})
 }
 
@@ -70,5 +70,5 @@ func (cfg *apiConfig) handleFeedsGetAll(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, feeds)
+	respondWithJSON(w, http.StatusOK, databaseFeedsToFeeds(feeds))
 }

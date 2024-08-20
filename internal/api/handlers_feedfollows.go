@@ -1,4 +1,4 @@
-package server
+package api
 
 import (
 	"encoding/json"
@@ -44,7 +44,7 @@ func (cfg *apiConfig) handleFeedFollowsAdd(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, feedFollow)
+	respondWithJSON(w, http.StatusOK, databaseFeedFollowToFeedFollow(feedFollow))
 }
 
 func (cfg *apiConfig) handleFeedFollowsDelete(w http.ResponseWriter, r *http.Request, u database.User) {
@@ -79,7 +79,7 @@ func (cfg *apiConfig) handleFeedFollowsDelete(w http.ResponseWriter, r *http.Req
 		respondWithError(w, http.StatusInternalServerError, "Couldn't unfollow feed.")
 	}
 
-	respondWithJSON(w, http.StatusOK, struct{}{})
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (cfg *apiConfig) handleFeedFollowsGetAllByUser(w http.ResponseWriter, r *http.Request, u database.User) {
@@ -90,5 +90,5 @@ func (cfg *apiConfig) handleFeedFollowsGetAllByUser(w http.ResponseWriter, r *ht
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, feedFollows)
+	respondWithJSON(w, http.StatusOK, databaseFeedFollowsToFeedFollows(feedFollows))
 }

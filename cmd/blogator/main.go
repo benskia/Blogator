@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/benskia/Blogator/internal/server"
+	"github.com/benskia/Blogator/internal/api"
 	"github.com/joho/godotenv"
 )
 
@@ -22,7 +22,7 @@ func main() {
 		log.Fatal("PORT environment variable is not set")
 	}
 
-	server.StartBlogator(server.EnvVars{
+	api.StartBlogator(api.EnvVars{
 		DbURL: dbURL,
 		Port:  port,
 	})

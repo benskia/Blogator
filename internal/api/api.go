@@ -1,9 +1,13 @@
-package server
+package api
 
 import (
 	"database/sql"
+	"encoding/xml"
+	"errors"
+	"io"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/benskia/Blogator/internal/database"
 	_ "github.com/lib/pq" // The psql driver is needed for its side-effects.
@@ -15,7 +19,13 @@ type EnvVars struct {
 }
 
 type apiConfig struct {
-	DB *database.Queries
+	DB             *database.Queries
+	fetch_count    int
+	fetch_interval time.Duration
+}
+
+type parsedXML struct {
+	InnerXML []byte `xml:"innerxml"`
 }
 
 func StartBlogator(env EnvVars) {
@@ -26,7 +36,8 @@ func StartBlogator(env EnvVars) {
 
 	dbQueries := database.New(db)
 	apiCfg := apiConfig{
-		DB: dbQueries,
+		DB:          dbQueries,
+		fetch_count: 10,
 	}
 
 	mux := http.NewServeMux()
@@ -51,4 +62,38 @@ func StartBlogator(env EnvVars) {
 
 	log.Println("Serving on port: ", env.Port)
 	log.Fatal(srv.ListenAndServe())
+}
+
+func (cfg *apiConfig) fetchDataFromFeed(url string) (parsedXML, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return parsedXML{}, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return parsedXML{}, errors.New("Status for GET at URL not 200 (OK)")
+	}
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return parsedXML{}, err
+	}
+
+	result := parsedXML{}
+	err = xml.Unmarshal(data, &result)
+	if err != nil {
+		return parsedXML{}, err
+	}
+
+	return result, err
+}
+
+func (cfg *apiConfig) FetchFeeds() {
+	ticker := time.NewTimer(cfg.fetch_interval)
+	defer ticker.Stop()
+
+	for {
+		// TODO: Concurrently fetch cfg.fetch_count feeds - use sync.Waitgroup
+	}
 }
